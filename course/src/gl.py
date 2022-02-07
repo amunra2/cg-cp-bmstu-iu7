@@ -143,7 +143,7 @@ class winGL(QtOpenGL.QGLWidget):
         # gl.glBindVertexArray(VAO)
 
         gl.glVertexAttribDivisor(0, 0)
-        gl.glVertexAttribDivisor(1, 1)
+        gl.glVertexAttribDivisor(1, 0)
 
         gl.glPointSize(5)
         gl.glDrawArrays(gl.GL_POINTS, 0, len(self.particles))
@@ -153,8 +153,11 @@ class winGL(QtOpenGL.QGLWidget):
     def getParticlesColor(self):
         colors = []
 
+        check = True
+        num = 0
+
         for particle in self.particles:
-            colors.append(glm.vec4(0, 0, 1, 1))
+            colors.append(particle.getColor())
 
         npColors = np.array(colors)
         
@@ -163,10 +166,13 @@ class winGL(QtOpenGL.QGLWidget):
 
     def getParticlesPositions(self):
         positions = []
+        colors = []
 
         for particle in self.particles:
             positions.append(particle.getPosition())
+            colors.append(particle.getColor())
 
+        self.particlesColors = np.array(colors)
         poses = np.array(positions)
 
         return poses
@@ -180,6 +186,7 @@ class winGL(QtOpenGL.QGLWidget):
             particle.moveParticle()
 
         self.particlesPositions = self.getParticlesPositions()
+        # self.particlesColors = self.getParticlesColor()
         
 
     def makeWaterfall(self):

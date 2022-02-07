@@ -1,5 +1,6 @@
 import numpy as np
 from random import random, randint
+import glm
 
 from scipy import randn
 
@@ -34,6 +35,9 @@ class Particle:
     currentTime = 0
     particlesRemoved = 0
 
+    num = 0
+    check = True
+
     def __init__(self):
         # self.pos = [0, 0, 0]
         # self.speed = 0
@@ -54,7 +58,7 @@ class Particle:
         # self.lifespan = self.maxAge
         self.age = 0
         self.maxAge = randint(50, 500)
-        self.colour = self.waterColour
+        self.color = self.initColor()
         self.opacity = self.opacityMean + random() * self.opacityVariance
 
         self.diameter = self.diameterMean + random() * self.diameterVariance
@@ -116,9 +120,17 @@ class Particle:
         return pos
 
 
+    def initColor(self):
+        if (random() > 0.5):
+            initedColor = glm.vec4(0, 0.584, 0.713, 1)
+        else:
+            initedColor = glm.vec4(0.450, 0.713, 0.996, 1)
+
+        return initedColor
+
+
     def getColor(self):
-        color = np.array(self.colour, dtype="int")
-        return color
+        return self.color
 
 
     def moveParticle(self):
@@ -136,6 +148,9 @@ class Particle:
         self.pos[2] += (oldSpeed * oldDirection[2] + self.speed * self.direction[2])
 
         self.age += 1
+
+        if (self.age + 50 > self.maxAge):
+            self.color = glm.vec4(1, 1, 1, 1)
 
         return self 
 
