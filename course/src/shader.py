@@ -1,11 +1,13 @@
 import OpenGL.GL as gl
 import glm
 
+SHADER_FOLDER = "./shaders/"
+
 
 class Shader:
     def __init__(self, vsFilename, fsFilename):
         # print("./shaders" + vsFilename + " | " + "./shaders" + fsFilename)
-        self.progID = self.__getProgram("./shaders/" + vsFilename, "./shaders/" + fsFilename)
+        self.progID = self.__getProgram(SHADER_FOLDER + vsFilename, SHADER_FOLDER + fsFilename)
 
     def __getProgram(self, vsFilename, fsFilename):
         vShader = self.__getShader(vsFilename, "v")

@@ -1,6 +1,6 @@
 from operator import imod
 from PyQt5 import QtGui, QtOpenGL
-from PyQt5.QtGui import QMatrix4x4, QCursor
+from PyQt5.QtGui import QMatrix4x4, QCursor, QColor
 from PyQt5.QtCore import Qt, QPoint
 
 import OpenGL.GL as gl
@@ -47,6 +47,7 @@ class winGL(QtOpenGL.QGLWidget):
 
         self.particles = self.createParticles()
         self.particlesPositions = self.getParticlesPositions()
+        self.particlesColors = self.getParticlesColor()
 
         # print("POS: ", type(self.particlesPositions[0]))
 
@@ -106,11 +107,6 @@ class winGL(QtOpenGL.QGLWidget):
         VAO = gl.glGenVertexArrays(1)
         gl.glBindVertexArray(VAO)
 
-        # Копирование массива вершин в вершинный буфер
-        VBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, VBO)
-        gl.glBufferData(gl.GL_ARRAY_BUFFER, self.particlesPositions, gl.GL_STATIC_DRAW)
-
         # Установка шейдеров
         shaders = Shader("shader.vs", "shader.fs")
         shaders.use()
@@ -120,21 +116,50 @@ class winGL(QtOpenGL.QGLWidget):
         shaders.setMat4("view", self.camera.getViewMatrix())
         shaders.setMat4("model", self.object.getModelMatrix())
 
+        # Копирование массива вершин в вершинный буфер
+        VBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, VBO)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, self.particlesPositions, gl.GL_STATIC_DRAW)
+
+        colorVBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, colorVBO)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, self.particlesColors, gl.GL_STATIC_DRAW)
+
         # Установка указателей вершинных атрибутов
         # posss = gl.glGetAttribLocation(shaders, "position")
-        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 0, None)
         gl.glEnableVertexAttribArray(0)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, VBO)
+        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 0, None)
+
+        gl.glEnableVertexAttribArray(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, colorVBO)
+        gl.glVertexAttribPointer(1, 4, gl.GL_FLOAT, True, 0, None)
+
 
         # Установка цвета
-        shaders.setVec4("curColor", *self.color)
+        # shaders.setVec4("curColor", *self.color)
 
         # Отрисовка
-        gl.glBindVertexArray(VAO)
+        # gl.glBindVertexArray(VAO)
+
+        gl.glVertexAttribDivisor(0, 0)
+        gl.glVertexAttribDivisor(1, 1)
 
         gl.glPointSize(5)
         gl.glDrawArrays(gl.GL_POINTS, 0, len(self.particles))
+
         
-            
+    
+    def getParticlesColor(self):
+        colors = []
+
+        for particle in self.particles:
+            colors.append(glm.vec4(0, 0, 1, 1))
+
+        npColors = np.array(colors)
+        
+
+        return npColors
 
     def getParticlesPositions(self):
         positions = []

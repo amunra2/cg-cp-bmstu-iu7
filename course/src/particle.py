@@ -18,7 +18,7 @@ class Particle:
     speedMean = 0.00001
     speedVariance = 0.000001
 
-    waterColour = [0, 153, 204]
+    waterColour = [0, 153, 204, 1]
     opacityMean = 0.7
     opacityVariance = 0.1
 
@@ -110,9 +110,16 @@ class Particle:
                 vec[1] * num,
                 vec[2] * num]
 
+
     def getPosition(self):
         pos = np.array((self.pos[0], self.pos[1], self.pos[2]), dtype = 'float32')
         return pos
+
+
+    def getColor(self):
+        color = np.array(self.colour, dtype="int")
+        return color
+
 
     def moveParticle(self):
         oldSpeed = self.speed
