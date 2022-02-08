@@ -29,8 +29,8 @@ class Particle:
     windScale = 1000.0
     windDirection = [-1.0, 0.0, 0.0]
 
-    lineStart = [-10.0, 0, 0.0]
-    lineEnd = [10.0, 0, 0.0]
+    # lineStart = [-10.0, 0, 0.0]
+    # lineEnd = [10.0, 0, 0.0]
 
     currentTime = 0
     particlesRemoved = 0
@@ -38,18 +38,9 @@ class Particle:
     num = 0
     check = True
 
-    def __init__(self):
-        # self.pos = [0, 0, 0]
-        # self.speed = 0
-        # self.direction = []
-        # self.acceleration = 0
-        # self.age = 0
-        # self.lifespan = 0
-        # self.colour = [0, 0, 255] # rgb
-        # self.opacity = 0
-        # self.diameter = 0
+    def __init__(self, lineStart, lineEnd):
 
-        self.pos = self.initialParticlePosition(self.lineStart, self.lineEnd)
+        self.pos = self.initialParticlePosition(lineStart, lineEnd)
         self.speed = self.speedMean + random() * self.speedVariance
 
         wind = self.scalarMul(self.windDirection, self.windScale) # вектор * скаляр
@@ -92,22 +83,6 @@ class Particle:
 
         return initPos
 
-    # def createParticle(self):
-    #     self.pos = self.initialParticlePosition(self.lineStart, self.lineEnd)
-    #     self.speed = self.speedMean + random() * self.speedVariance
-
-    #     wind = self.scalarMul(self.windDirection, self.windScale) # вектор * скаляр
-    #     self.direction = self.addDirections(self.initialParticleDirection(), wind)
-
-    #     self.lifespan = self.maxAge
-    #     self.age = 0
-    #     self.colour = self.waterColour
-    #     self.opacity = self.opacityMean + random() * self.opacityVariance
-
-    #     self.diameter = self.diameterMean + random() * self.diameterVariance
-    #     self.acceleration = self.accelerationGravity
-
-    #     return self
 
     def scalarMul(self, vec, num):
         return [vec[0] * num,
@@ -133,7 +108,7 @@ class Particle:
         return self.color
 
 
-    def moveParticle(self):
+    def moveWaterfallParticle(self):
         oldSpeed = self.speed
         oldDirection = deepcopy(self.direction)
 
@@ -152,8 +127,29 @@ class Particle:
         if (self.age + 50 > self.maxAge):
             self.color = glm.vec4(1, 1, 1, 1)
 
+        return self
+
+
+    def moveSolidParticle(self):
+        oldSpeed = self.speed
+        oldDirection = deepcopy(self.direction)
+
+        self.direction[0] += self.gravityDirection[0]
+        self.direction[1] += self.gravityDirection[1]
+        self.direction[2] += self.gravityDirection[2]
+
+        self.speed += self.acceleration
+
+        self.pos[0] += (oldSpeed * oldDirection[0] + self.speed * self.direction[0])
+        # self.pos[1] += (oldSpeed * oldDirection[1] + self.speed * self.direction[1])
+        self.pos[2] += (oldSpeed * oldDirection[2] + self.speed * self.direction[2])
+
+        self.age += 1
+
+        if (self.age + 50 > self.maxAge):
+            self.color = glm.vec4(1, 1, 1, 1)
+
         return self 
 
         
-
 

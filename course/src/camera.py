@@ -32,9 +32,9 @@ class Camera(Object):
         sinYaw, cosYaw = (glm.sin(glm.radians(self.yaw)),
                           glm.cos(glm.radians(self.yaw)))
         sinPitch, cosPitch = (glm.sin(glm.radians(self.pitch)),
-                          glm.cos(glm.radians(self.pitch)))
+                              glm.cos(glm.radians(self.pitch)))
         sinRoll, cosRoll = (glm.sin(glm.radians(self.roll)),
-                          glm.cos(glm.radians(self.roll)))
+                            glm.cos(glm.radians(self.roll)))
 
         newFront = glm.vec3()
 

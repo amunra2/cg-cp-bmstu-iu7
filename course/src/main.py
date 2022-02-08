@@ -95,22 +95,22 @@ class project(QtWidgets.QMainWindow, Ui_project):
 
     # Перемещение
     def moveUp(self):
-        self.winGL.translate((0, 0.05, 0))
+        self.winGL.translate((0, 1, 0))
 
     def moveDown(self):
-        self.winGL.translate((0, -0.05, 0))
+        self.winGL.translate((0, -1, 0))
 
     def moveLeft(self):
-        self.winGL.translate((0.05, 0, 0))
+        self.winGL.translate((1, 0, 0))
 
     def moveRight(self):
-        self.winGL.translate((-0.05, 0, 0))
+        self.winGL.translate((-1, 0, 0))
 
     def moveForward(self):
-        self.winGL.translate((0, 0, -0.05))
+        self.winGL.translate((0, 0, -1))
 
     def moveBack(self):
-        self.winGL.translate((0, 0, 0.05))
+        self.winGL.translate((0, 0, 1))
 
     # Поворот
     def spinLeftX(self):

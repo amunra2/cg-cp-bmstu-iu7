@@ -11,6 +11,7 @@ import glm
 import glfw
 import numpy as np
 from random import random
+from copy import deepcopy
 
 from shader import Shader
 
@@ -29,6 +30,14 @@ class winGL(QtOpenGL.QGLWidget):
 
     maxAge = 70
 
+    # Водопад
+    lineStartWF = [-10, 0, 0]
+    lineEndWF   = [ 10, 0, 0]
+
+    # Скала
+    lineStartRock = [-10, 0, 5]
+    lineEndRock   = [ 10, 0, 5]
+
     def __init__(self, parent = None):
         self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
@@ -43,11 +52,16 @@ class winGL(QtOpenGL.QGLWidget):
         self.object = Object()
         self.camera = Camera()
 
+        # Для частиц водопада и водяного потока
         self.particlesNum = 1000
 
-        self.particles = self.createParticles()
+        self.waterfallParticles = self.createParticles(self.lineStartWF, self.lineEndWF)
+        self.solidParticles = self.createParticles(self.lineStartRock, self.lineEndRock)
+        self.allParticles = self.getAllParticles()
+
         self.particlesPositions = self.getParticlesPositions()
         self.particlesColors = self.getParticlesColor()
+
 
         # print("POS: ", type(self.particlesPositions[0]))
 
@@ -71,17 +85,40 @@ class winGL(QtOpenGL.QGLWidget):
         # ),
         # dtype='float32')
 
-        self.indices = np.array([i for i in range(self.particlesNum * 80)], dtype='int32')
+        self.rockColor = [
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            glm.vec4(0.396, 0.262, 0.129, 1),
+            glm.vec4(0.396, 0.262, 0.129, 1),
+            glm.vec4(0.396, 0.262, 0.129, 1),
+            glm.vec4(0.396, 0.262, 0.129, 1)
+        ]
+
+        self.rockColor = np.array(self.rockColor, dtype = "float32")
 
 
-    def createParticles(self):
+        self.solidRock = np.array(
+        (
+            (-10,   0,  0),
+            (-10,   0, 5),
+            ( 10,   0, 5),
+            ( 10,   0,  0),
 
-        particles = []
+            (-10, -5,  0),
+            (-10, -5, 5),
+            ( 10, -5, 5),
+            ( 10, -5,  0)
+        ), 
+        dtype = 'float32')
 
-        for i in range(self.particlesNum):
-            particles.append(Particle())
-
-        return particles
+        self.indicesRock = np.array((0, 1, 3, 1, 2, 3,
+                                 4, 5, 7, 5, 6, 7,
+                                 0, 3, 4, 3, 4, 7,
+                                 1, 2, 5, 2, 5, 6,
+                                 0, 1, 4, 1, 4, 5,
+                                 2, 3, 6, 3, 6, 7), dtype='int32')
 
 
     def initializeGL(self):
@@ -93,8 +130,37 @@ class winGL(QtOpenGL.QGLWidget):
     def resizeGL(self, width, height):
         gl.glViewport(0, 0, width, height)
         self.camera.changePerspective(ratio = width / height)
-        self.camera.setPos([-20, 0, 0])
+        self.camera.setPos([-20, 5, 0])
         self.camera.spinY(90)
+
+
+    def paintSolidObject(self, vrtxs, indices, color):
+        # Скала
+        cubeVBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, cubeVBO)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, vrtxs, gl.GL_STATIC_DRAW)
+
+        cubeEBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, cubeEBO)
+        gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, indices, gl.GL_STATIC_DRAW)
+        
+        cubeColorVBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, cubeColorVBO)
+        gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW)
+
+        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 0, None)
+        gl.glEnableVertexAttribArray(0)
+
+        gl.glEnableVertexAttribArray(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, cubeColorVBO)
+        gl.glVertexAttribPointer(1, 4, gl.GL_FLOAT, True, 0, None)
+
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, cubeEBO)
+
+        gl.glDrawElements(gl.GL_TRIANGLES, 36, gl.GL_UNSIGNED_INT, None)
+
+        gl.glDisableVertexAttribArray(0)
+        gl.glDisableVertexAttribArray(1)
 
 
     def paintGL(self):
@@ -116,6 +182,10 @@ class winGL(QtOpenGL.QGLWidget):
         shaders.setMat4("view", self.camera.getViewMatrix())
         shaders.setMat4("model", self.object.getModelMatrix())
 
+        # Скала
+        self.paintSolidObject(self.solidRock, self.indicesRock, self.rockColor)
+
+        # Водопад
         # Копирование массива вершин в вершинный буфер
         VBO = gl.glGenBuffers(1)
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, VBO)
@@ -145,9 +215,26 @@ class winGL(QtOpenGL.QGLWidget):
         gl.glVertexAttribDivisor(0, 0)
         gl.glVertexAttribDivisor(1, 0)
 
-        gl.glPointSize(5)
-        gl.glDrawArrays(gl.GL_POINTS, 0, len(self.particles))
+        gl.glPointSize(8)
+        gl.glDrawArrays(gl.GL_POINTS, 0, len(self.allParticles))
 
+
+    def getAllParticles(self):
+        allParticles = []
+        allParticles.extend(self.waterfallParticles)
+        allParticles.extend(self.solidParticles)
+
+        return allParticles
+
+
+    def createParticles(self, lineStart, lineEnd):
+
+        particles = []
+
+        for i in range(self.particlesNum):
+            particles.append(Particle(lineStart, lineEnd))
+
+        return particles
         
     
     def getParticlesColor(self):
@@ -156,7 +243,7 @@ class winGL(QtOpenGL.QGLWidget):
         check = True
         num = 0
 
-        for particle in self.particles:
+        for particle in self.allParticles:
             colors.append(particle.getColor())
 
         npColors = np.array(colors)
@@ -164,11 +251,12 @@ class winGL(QtOpenGL.QGLWidget):
 
         return npColors
 
+
     def getParticlesPositions(self):
         positions = []
         colors = []
 
-        for particle in self.particles:
+        for particle in self.allParticles:
             positions.append(particle.getPosition())
             colors.append(particle.getColor())
 
@@ -182,42 +270,74 @@ class winGL(QtOpenGL.QGLWidget):
 
         movedParticles = []
         
-        for particle in self.particles:
-            particle.moveParticle()
+        for particle in self.waterfallParticles:
+            particle.moveWaterfallParticle()
+
+        for particle in self.solidParticles:
+            particle.moveSolidParticle()
+
+        self.allParticles = self.getAllParticles()
 
         self.particlesPositions = self.getParticlesPositions()
         # self.particlesColors = self.getParticlesColor()
         
 
     def makeWaterfall(self):
-        print("Particles: ", len(self.particles))
-        deletedParticles = 0
-
-        # Удалить упавшие капли
-        for particle in self.particles:
-            if (particle.age > particle.maxAge):
-                self.particles.pop(0)
-                # self.particles.append(Particle())
-                deletedParticles += 1
-
-        self.particlesNum -= deletedParticles
+        # print("Particles: ", len(self.particles))
+        
+        self.deleteExtraParticles()
 
         # Добавить еще частиц
         extraParticlesNum = int(self.newParticlesMean + random() * self.newParticlesVariance)
 
         for i in range(extraParticlesNum):
-            self.particles.append(Particle())
+            self.waterfallParticles.append(Particle(self.lineStartWF, self.lineEndWF))
+
+        for i in range(int(extraParticlesNum * 1.5)):
+            self.solidParticles.append(Particle(self.lineStartRock, self.lineEndRock))
 
         self.particlesNum += extraParticlesNum
 
         # Обновить атрибуты для всех частиц
         self.moveParticles()
+
+
+    # Москва Большая Оленья д 8а строение 3 (Госпиталь Мандрыка)
+
+    # TaxiTrade:  1800р
+    # YandexTaxi: 1457р econom ~1800 comfort
+    # CitiMobil:  2390р
+
+
+    def deleteExtraParticles(self):
+        deletedParticles = 0
+
+        # Удалить упавшие капли
+        for particle in self.waterfallParticles:
+            if (particle.age > particle.maxAge):
+                self.waterfallParticles.pop(0)
+                # self.particles.append(Particle())
+                deletedParticles += 1
+
+        for particle in self.solidParticles:
+            if (particle.pos[2] < 0):
+                self.solidParticles.pop(0)
+                # self.particles.append(Particle())
+                deletedParticles += 1
+
+        
+        self.allParticles = self.getAllParticles()
+
+        self.particlesNum -= deletedParticles
     
+
     def translate(self, vec):
         self.camera.translate(*vec)
 
+
     def scale(self, k):
         self.camera.zoom(k)
+
 
     def spin(self, vec):
         self.camera.spinX(vec[0])
@@ -230,6 +350,8 @@ class winGL(QtOpenGL.QGLWidget):
 
         self.lastPos = QPoint(camPosition.x() + self.width() // 2,
                               camPosition.y() + self.height() // 2)
+
+        print(self.lastPos)
 
         self.cursor.setPos(self.lastPos)
         self.cursor.setShape(Qt.BlankCursor)
