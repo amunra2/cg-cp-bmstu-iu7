@@ -61,7 +61,7 @@ class project(QtWidgets.QMainWindow, Ui_project):
         timer.start()
 
         timerW = QtCore.QTimer(self)
-        timerW.setInterval(250)
+        timerW.setInterval(300)
         timerW.timeout.connect(self.timerUpdateWaterColor)
         timerW.start()
 

@@ -23,7 +23,7 @@ from particle import Particle
 
 
 class winGL(QtOpenGL.QGLWidget):
-    newParticlesMean = 70.0
+    newParticlesMean = 50.0
     newParticlesVariance = 5.0
 
     active = True
@@ -75,7 +75,7 @@ class winGL(QtOpenGL.QGLWidget):
         ),
         dtype='float32')
 
-        print("VRTXS1: ", type(self.vrtxs1[0]))
+        # print("VRTXS1: ", type(self.vrtxs1[0]))
 
         # self.vrtxs2 = np.array(
         # ((-0.5, -0.5, 0),
@@ -256,7 +256,7 @@ class winGL(QtOpenGL.QGLWidget):
 
             allIndices.extend(indices)
 
-        print(allIndices)
+        # print(allIndices)
 
         return allIndices
 
@@ -385,7 +385,7 @@ class winGL(QtOpenGL.QGLWidget):
         gl.glPointSize(5)
         gl.glDrawArrays(gl.GL_POINTS, 0, len(self.allParticles))
 
-        print("Particles = ", len(self.allParticles))
+        # print("Particles = ", len(self.allParticles))
 
 
     def getAllParticles(self):
@@ -436,8 +436,6 @@ class winGL(QtOpenGL.QGLWidget):
 
 
     def moveParticles(self):
-
-        movedParticles = []
         
         for particle in self.waterfallParticles:
             particle.moveWaterfallParticle()
@@ -520,7 +518,7 @@ class winGL(QtOpenGL.QGLWidget):
         self.lastPos = QPoint(camPosition.x() + self.width() // 2,
                               camPosition.y() + self.height() // 2)
 
-        print(self.lastPos)
+        # print(self.lastPos)
 
         self.cursor.setPos(self.lastPos)
         self.cursor.setShape(Qt.BlankCursor)
@@ -557,6 +555,7 @@ class winGL(QtOpenGL.QGLWidget):
         self.camera.continousTranslate(translateVec)
         self.color = color
         self.updateGL()
+
 
     def updateWaterColor(self):
         np.random.shuffle(self.colorTestNP)

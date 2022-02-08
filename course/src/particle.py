@@ -124,6 +124,14 @@ class Particle:
 
         self.age += 1
 
+
+        if (self.pos[1] <= -14.7):
+            self.speed = 0.8 * self.speed
+            self.pos[0] -= (oldSpeed * oldDirection[0] + self.speed * self.direction[0])
+            self.pos[1] -= (oldSpeed * oldDirection[1] + self.speed * self.direction[1])
+            self.pos[2] -= (oldSpeed * oldDirection[2] + self.speed * self.direction[2])
+            self.color = glm.vec4(1, 1, 1, 1)
+
         if (self.age + 50 > self.maxAge):
             self.color = glm.vec4(1, 1, 1, 1)
 
