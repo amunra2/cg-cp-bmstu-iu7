@@ -56,14 +56,14 @@ class project(QtWidgets.QMainWindow, Ui_project):
 
         # Таймер
         timer = QtCore.QTimer(self)
-        timer.setInterval(30)
+        timer.setInterval(50)
         timer.timeout.connect(self.timerActions)
         timer.start()
 
-        # timerWF = QtCore.QTimer(self)
-        # timerWF.setInterval(50)
-        # timerWF.timeout.connect(self.timerWaterfall)
-        # timerWF.start()
+        timerW = QtCore.QTimer(self)
+        timerW.setInterval(250)
+        timerW.timeout.connect(self.timerUpdateWaterColor)
+        timerW.start()
 
     def timerActions(self):
         if self.colorWindow:
@@ -79,8 +79,8 @@ class project(QtWidgets.QMainWindow, Ui_project):
 
 
     
-    def timerWaterfall(self):
-        self.winGL.makeWaterfall()
+    def timerUpdateWaterColor(self):
+        self.winGL.updateWaterColor()
 
 
     # Управление водопадом

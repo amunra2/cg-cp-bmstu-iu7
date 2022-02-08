@@ -10,7 +10,7 @@ from OpenGL.arrays import vbo
 import glm
 import glfw
 import numpy as np
-from random import random
+from random import random, shuffle, choice
 from copy import deepcopy
 
 from shader import Shader
@@ -23,7 +23,7 @@ from particle import Particle
 
 
 class winGL(QtOpenGL.QGLWidget):
-    newParticlesMean = 50.0
+    newParticlesMean = 70.0
     newParticlesVariance = 5.0
 
     active = True
@@ -89,10 +89,10 @@ class winGL(QtOpenGL.QGLWidget):
         # Скала
         self.solidRock = np.array(
         (
-            (-10,   0,  0),
-            (-10,   0,  5),
-            ( 10,   0,  5),
-            ( 10,   0,  0),
+            (-10,   -0.01,  0),
+            (-10,   -0.01,  5),
+            ( 10,   -0.01,  5),
+            ( 10,   -0.01,  0),
 
             (-10, -15,  0),
             (-10, -15,  5),
@@ -120,6 +120,67 @@ class winGL(QtOpenGL.QGLWidget):
         ]
 
         self.colorRock = np.array(self.colorRock, dtype = "float32")
+
+
+        # Test
+        self.solidTest = np.array(
+        (
+            (-10, 0.1, 0), #  0
+            ( -6, 0.1, 0), #  1
+            ( -2, 0.1, 0), #  2
+            (  2, 0.1, 0), #  3
+            (  6, 0.1, 0), #  4
+            ( 10, 0.1, 0), #  5
+ 
+            (-10, 0.1, 3), #  6
+            ( -6, 0.1, 3), #  7
+            ( -2, 0.1, 3), #  8
+            (  2, 0.1, 3), #  9
+            (  6, 0.1, 3), # 10
+            ( 10, 0.1, 3), # 11
+ 
+            (-10, 0.1, 6), # 12
+            ( -6, 0.1, 6), # 13
+            ( -2, 0.1, 6), # 14
+            (  2, 0.1, 6), # 15
+            (  6, 0.1, 6), # 16
+            ( 10, 0.1, 6), # 17
+        ), 
+        dtype = 'float32')
+
+        self.solidTest = self.getCords(5, 15, [-15, -14.9, -20], 2, 5)
+        self.solidTest = np.array(self.solidTest, dtype = "float32")
+        
+
+        self.indicesTest = self.getIndices(5, 15)
+        self.indicesTest = np.array(self.indicesTest, dtype = "int32")
+
+        self.colorTest = [
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(1, 1, 1, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0.450, 0.482, 0.490, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+
+            glm.vec4(0.450, 0.482, 0.490, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(1, 1, 1, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0.450, 0.482, 0.490, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0.450, 0.482, 0.490, 1),
+            glm.vec4(0.450, 0.482, 0.490, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(1, 1, 1, 1)
+        ]
+
+        self.colorTest = self.getColor(5, 15)
+
+        self.colorTestNP = np.array(self.colorTest, dtype = "float32")
 
 
         # Озеро
@@ -156,7 +217,65 @@ class winGL(QtOpenGL.QGLWidget):
         ]
 
         self.colorLake = np.array(self.colorLake, dtype = "float32")
+
+
+    def getColor(self, height, width):
+
+        colors = []
+
+        colorTypes = [glm.vec4(0, 0.584, 0.713, 1),
+                      glm.vec4(0.450, 0.713, 0.996, 1)]
+
+
+        for i in range((height + 1) * (width + 1)):
+            element = choice(colorTypes)
+            colors.append(element)
+
+        return colors
+
+
+    def getIndices(self, height, width):
         
+        allIndices = []
+
+        for i in range(height):
+
+            indices = []
+
+            for j in range(width):
+                indices.append((i * (width + 1)) + j)
+                indices.append((i * (width + 1)) + (j + 1))
+                indices.append(((i + 1) * (width + 1)) + (j + 1))
+
+                indices.append((i * (width + 1)) + j)
+                indices.append(((i + 1) * (width + 1)) + j)
+                indices.append(((i + 1) * (width + 1)) + (j + 1))
+
+            if (i % 2 == 1):
+                indices.reverse()
+
+            allIndices.extend(indices)
+
+        print(allIndices)
+
+        return allIndices
+
+
+    def getCords(self, height, width, cord, stepX, stepZ):
+
+        cords = []
+
+        x = cord[0]
+        y = cord[1]
+        z = cord[2]
+
+        for i in range(0, height + 1):
+            for j in range(0, width + 1):
+                cords.append(np.array((x + j * stepX, y, z + i * stepZ), dtype = "float32"))
+
+        # print(cords)
+
+        return cords
 
 
     def initializeGL(self):
@@ -195,7 +314,7 @@ class winGL(QtOpenGL.QGLWidget):
 
         gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, cubeEBO)
 
-        gl.glDrawElements(gl.GL_TRIANGLES, 36, gl.GL_UNSIGNED_INT, None)
+        gl.glDrawElements(gl.GL_TRIANGLES, 1000, gl.GL_UNSIGNED_INT, None)
 
         gl.glDisableVertexAttribArray(0)
         gl.glDisableVertexAttribArray(1)
@@ -225,6 +344,12 @@ class winGL(QtOpenGL.QGLWidget):
 
         # Озеро
         self.paintSolidObject(self.solidLake, self.indicesLake, self.colorLake)
+
+        # Test
+        self.paintSolidObject(self.solidTest, self.indicesTest, self.colorTestNP)
+
+
+
 
 
         # Водопад
@@ -257,8 +382,10 @@ class winGL(QtOpenGL.QGLWidget):
         gl.glVertexAttribDivisor(0, 0)
         gl.glVertexAttribDivisor(1, 0)
 
-        gl.glPointSize(8)
+        gl.glPointSize(5)
         gl.glDrawArrays(gl.GL_POINTS, 0, len(self.allParticles))
+
+        print("Particles = ", len(self.allParticles))
 
 
     def getAllParticles(self):
@@ -321,7 +448,7 @@ class winGL(QtOpenGL.QGLWidget):
         self.allParticles = self.getAllParticles()
 
         self.particlesPositions = self.getParticlesPositions()
-        # self.particlesColors = self.getParticlesColor()
+        self.particlesColors = self.getParticlesColor()
         
 
     def makeWaterfall(self):
@@ -430,6 +557,10 @@ class winGL(QtOpenGL.QGLWidget):
         self.camera.continousTranslate(translateVec)
         self.color = color
         self.updateGL()
+
+    def updateWaterColor(self):
+        np.random.shuffle(self.colorTestNP)
+
 
 
 
