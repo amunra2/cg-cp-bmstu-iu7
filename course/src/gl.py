@@ -85,7 +85,30 @@ class winGL(QtOpenGL.QGLWidget):
         # ),
         # dtype='float32')
 
-        self.rockColor = [
+        
+        # Скала
+        self.solidRock = np.array(
+        (
+            (-10,   0,  0),
+            (-10,   0,  5),
+            ( 10,   0,  5),
+            ( 10,   0,  0),
+
+            (-10, -15,  0),
+            (-10, -15,  5),
+            ( 10, -15,  5),
+            ( 10, -15,  0)
+        ), 
+        dtype = 'float32')
+
+        self.indicesRock = np.array((0, 1, 3, 1, 2, 3,
+                                     4, 5, 7, 5, 6, 7,
+                                     0, 3, 4, 3, 4, 7,
+                                     1, 2, 5, 2, 5, 6,
+                                     0, 1, 4, 1, 4, 5,
+                                     2, 3, 6, 3, 6, 7), dtype='int32')
+
+        self.colorRock = [
             # glm.vec4(0.396, 0.262, 0.129, 1),
             # glm.vec4(0.396, 0.262, 0.129, 1),
             # glm.vec4(0.396, 0.262, 0.129, 1),
@@ -96,29 +119,44 @@ class winGL(QtOpenGL.QGLWidget):
             glm.vec4(0.396, 0.262, 0.129, 1)
         ]
 
-        self.rockColor = np.array(self.rockColor, dtype = "float32")
+        self.colorRock = np.array(self.colorRock, dtype = "float32")
 
 
-        self.solidRock = np.array(
+        # Озеро
+        self.solidLake = np.array(
         (
-            (-10,   0,  0),
-            (-10,   0, 5),
-            ( 10,   0, 5),
-            ( 10,   0,  0),
+            (-15, -15,   5),
+            (-15, -15, -20),
+            ( 15, -15, -20),
+            ( 15, -15,   5),
 
-            (-10, -5,  0),
-            (-10, -5, 5),
-            ( 10, -5, 5),
-            ( 10, -5,  0)
+            (-15, -20,   5),
+            (-15, -20, -20),
+            ( 15, -20, -20),
+            ( 15, -20,   5)
         ), 
         dtype = 'float32')
 
-        self.indicesRock = np.array((0, 1, 3, 1, 2, 3,
-                                 4, 5, 7, 5, 6, 7,
-                                 0, 3, 4, 3, 4, 7,
-                                 1, 2, 5, 2, 5, 6,
-                                 0, 1, 4, 1, 4, 5,
-                                 2, 3, 6, 3, 6, 7), dtype='int32')
+        self.indicesLake = np.array((0, 1, 3, 1, 2, 3,
+                                     4, 5, 7, 5, 6, 7,
+                                     0, 3, 4, 3, 4, 7,
+                                     1, 2, 5, 2, 5, 6,
+                                     0, 1, 4, 1, 4, 5,
+                                     2, 3, 6, 3, 6, 7), dtype='int32')
+
+        self.colorLake = [
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            # glm.vec4(0.396, 0.262, 0.129, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0, 0.584, 0.713, 1),
+            glm.vec4(0, 0.584, 0.713, 1)
+        ]
+
+        self.colorLake = np.array(self.colorLake, dtype = "float32")
+        
 
 
     def initializeGL(self):
@@ -183,7 +221,11 @@ class winGL(QtOpenGL.QGLWidget):
         shaders.setMat4("model", self.object.getModelMatrix())
 
         # Скала
-        self.paintSolidObject(self.solidRock, self.indicesRock, self.rockColor)
+        self.paintSolidObject(self.solidRock, self.indicesRock, self.colorRock)
+
+        # Озеро
+        self.paintSolidObject(self.solidLake, self.indicesLake, self.colorLake)
+
 
         # Водопад
         # Копирование массива вершин в вершинный буфер

@@ -74,7 +74,8 @@ class project(QtWidgets.QMainWindow, Ui_project):
         
         if (self.isActiveWF):
             self.winGL.makeWaterfall()
-            self.winGL.update(self.curColor.getRgbF(), self.translateVec)
+        
+        self.winGL.update(self.curColor.getRgbF(), self.translateVec)
 
 
     
