@@ -46,9 +46,8 @@ class Particle:
         wind = self.scalarMul(self.windDirection, self.windScale) # вектор * скаляр
         self.direction = self.addDirections(self.initialParticleDirection(), wind)
 
-        # self.lifespan = self.maxAge
         self.age = 0
-        self.maxAge = randint(50, 500)
+        self.maxAge = randint(100, 700)
         self.color = self.initColor()
         self.opacity = self.opacityMean + random() * self.opacityVariance
 
@@ -132,7 +131,7 @@ class Particle:
             self.pos[2] -= (oldSpeed * oldDirection[2] + self.speed * self.direction[2])
             self.color = glm.vec4(1, 1, 1, 1)
 
-        if (self.age + 50 > self.maxAge):
+        if (self.age + 150 > self.maxAge):
             self.color = glm.vec4(1, 1, 1, 1)
 
         return self
@@ -154,7 +153,7 @@ class Particle:
 
         self.age += 1
 
-        if (self.age + 50 > self.maxAge):
+        if (self.age + 150 > self.maxAge):
             self.color = glm.vec4(1, 1, 1, 1)
 
         return self 

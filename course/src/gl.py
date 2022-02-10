@@ -52,6 +52,8 @@ class winGL(QtOpenGL.QGLWidget):
         self.object = Object()
         self.camera = Camera()
 
+        self.waterfallReady = False
+
         # Для частиц водопада и водяного потока
         self.particlesNum = 1000
 
@@ -292,7 +294,6 @@ class winGL(QtOpenGL.QGLWidget):
 
 
     def paintSolidObject(self, vrtxs, indices, color):
-        # Скала
         cubeVBO = gl.glGenBuffers(1)
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, cubeVBO)
         gl.glBufferData(gl.GL_ARRAY_BUFFER, vrtxs, gl.GL_STATIC_DRAW)
@@ -390,7 +391,8 @@ class winGL(QtOpenGL.QGLWidget):
 
     def getAllParticles(self):
         allParticles = []
-        allParticles.extend(self.waterfallParticles)
+        if (self.waterfallReady):
+            allParticles.extend(self.waterfallParticles)
         allParticles.extend(self.solidParticles)
 
         return allParticles
@@ -437,8 +439,9 @@ class winGL(QtOpenGL.QGLWidget):
 
     def moveParticles(self):
         
-        for particle in self.waterfallParticles:
-            particle.moveWaterfallParticle()
+        if (self.waterfallReady):
+            for particle in self.waterfallParticles:
+                particle.moveWaterfallParticle()
 
         for particle in self.solidParticles:
             particle.moveSolidParticle()
@@ -469,13 +472,6 @@ class winGL(QtOpenGL.QGLWidget):
         self.moveParticles()
 
 
-    # Москва Большая Оленья д 8а строение 3 (Госпиталь Мандрыка)
-
-    # TaxiTrade:  1800р
-    # YandexTaxi: 1457р econom ~1800 comfort
-    # CitiMobil:  2390р
-
-
     def deleteExtraParticles(self):
         deletedParticles = 0
 
@@ -488,6 +484,7 @@ class winGL(QtOpenGL.QGLWidget):
 
         for particle in self.solidParticles:
             if (particle.pos[2] < 0):
+                self.waterfallReady = True
                 self.solidParticles.pop(0)
                 # self.particles.append(Particle())
                 deletedParticles += 1
