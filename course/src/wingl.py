@@ -1,3 +1,4 @@
+from functools import partial
 from operator import imod
 from PyQt5 import QtGui, QtOpenGL
 from PyQt5.QtGui import QMatrix4x4, QCursor, QColor
@@ -18,8 +19,35 @@ from shader import Shader
 from object import Object
 from camera import Camera
 
-from particle import Particle
+from particle import Particle, setParticleAngle, setParticleSpeed
+from consts import *
 
+
+# Изменяемые параметры
+# Водопад
+lineStartWF = [-10, 0, 0]
+lineEndWF   = [ 10, 0, 0]
+
+# Скала
+lineStartRock = [-10, 0, 5]
+lineEndRock   = [ 10, 0, 5]
+
+particalSize = 7
+
+
+def setParticleSize(value):
+    global particalSize
+
+    particalSize = value
+
+
+def setHeightWF(value):
+    global lineStartWF, lineEndWF, lineStartRock, lineEndRock
+
+    lineStartWF[1] = value
+    lineEndWF[1] = value
+    lineStartRock[1] = value
+    lineEndRock[1] = value
 
 
 class winGL(QtOpenGL.QGLWidget):
@@ -29,14 +57,6 @@ class winGL(QtOpenGL.QGLWidget):
     active = True
 
     maxAge = 70
-
-    # Водопад
-    lineStartWF = [-10, 0, 0]
-    lineEndWF   = [ 10, 0, 0]
-
-    # Скала
-    lineStartRock = [-10, 0, 5]
-    lineEndRock   = [ 10, 0, 5]
 
     def __init__(self, parent = None):
         self.parent = parent
@@ -57,8 +77,8 @@ class winGL(QtOpenGL.QGLWidget):
         # Для частиц водопада и водяного потока
         self.particlesNum = 1000
 
-        self.waterfallParticles = self.createParticles(self.lineStartWF, self.lineEndWF)
-        self.solidParticles = self.createParticles(self.lineStartRock, self.lineEndRock)
+        self.waterfallParticles = self.createParticles(lineStartWF, lineEndWF)
+        self.solidParticles = self.createParticles(lineStartRock, lineEndRock)
         self.allParticles = self.getAllParticles()
 
         self.particlesPositions = self.getParticlesPositions()
@@ -69,10 +89,10 @@ class winGL(QtOpenGL.QGLWidget):
         # Скала
         self.solidRock = np.array(
         (
-            (-10,   -0.01,  0),
-            (-10,   -0.01,  5),
-            ( 10,   -0.01,  5),
-            ( 10,   -0.01,  0),
+            (-10,    -0.01,  0),
+            (-10,    -0.01,  5),
+            ( 10,    -0.01,  5),
+            ( 10,    -0.01,  0),
 
             (-10, -15,  0),
             (-10, -15,  5),
@@ -103,9 +123,9 @@ class winGL(QtOpenGL.QGLWidget):
 
 
         # Водное полотно
-        self.solidWater = np.array(self.getObjectCords(5, 15, [-15, -14.95, -20], 2, 5), dtype = "float32")
+        self.solidWater = np.array(self.getGridCords(5, 15, [-15, -14.95, -20], 2, 5), dtype = "float32")
         
-        self.indicesWater = np.array(self.getObjectIndices(5, 15), dtype = "int32")
+        self.indicesWater = np.array(self.getGridIndices(5, 15), dtype = "int32")
 
         self.colorWaterNP = np.array(self.getWaterColor(5, 15), dtype = "float32")
 
@@ -159,7 +179,7 @@ class winGL(QtOpenGL.QGLWidget):
         return colors
 
 
-    def getObjectIndices(self, height, width):
+    def getGridIndices(self, height, width):
         
         allIndices = []
 
@@ -181,12 +201,10 @@ class winGL(QtOpenGL.QGLWidget):
 
             allIndices.extend(indices)
 
-        # print(allIndices)
-
         return allIndices
 
 
-    def getObjectCords(self, height, width, cord, stepX, stepZ):
+    def getGridCords(self, height, width, cord, stepX, stepZ):
 
         cords = []
 
@@ -197,8 +215,6 @@ class winGL(QtOpenGL.QGLWidget):
         for i in range(0, height + 1):
             for j in range(0, width + 1):
                 cords.append(np.array((x + j * stepX, y, z + i * stepZ), dtype = "float32"))
-
-        # print(cords)
 
         return cords
 
@@ -244,7 +260,7 @@ class winGL(QtOpenGL.QGLWidget):
         gl.glDisableVertexAttribArray(1)
 
 
-    def drawDynamicObject(self, positions, colors):
+    def paintDynamicObject(self, positions, colors):
         # Копирование массива вершин в вершинный буфер
         VBO = gl.glGenBuffers(1)
         gl.glBindBuffer(gl.GL_ARRAY_BUFFER, VBO)
@@ -266,7 +282,7 @@ class winGL(QtOpenGL.QGLWidget):
         gl.glVertexAttribDivisor(0, 0)
         gl.glVertexAttribDivisor(1, 0)
 
-        gl.glPointSize(7)
+        gl.glPointSize(particalSize)
         gl.glDrawArrays(gl.GL_POINTS, 0, len(self.allParticles))
 
 
@@ -299,7 +315,7 @@ class winGL(QtOpenGL.QGLWidget):
         self.paintSolidObject(self.solidWater, self.indicesWater, self.colorWaterNP)
 
         # Водопад
-        self.drawDynamicObject(self.particlesPositions, self.particlesColors)
+        self.paintDynamicObject(self.particlesPositions, self.particlesColors)
 
 
     def getAllParticles(self):
@@ -359,11 +375,20 @@ class winGL(QtOpenGL.QGLWidget):
         for particle in self.solidParticles:
             particle.moveSolidParticle()
 
-        self.allParticles = self.getAllParticles()
+        allParticles = []
+        if (self.waterfallReady):
+            allParticles.extend(self.waterfallParticles)
+        allParticles.extend(self.solidParticles)
+
+        return allParticles
+ 
+    
+    def changeParticles(self):
+        self.allParticles = self.moveParticles()
 
         self.particlesPositions = self.getParticlesPositions()
         self.particlesColors = self.getParticlesColor()
-        
+
 
     def makeWaterfall(self):
         
@@ -373,15 +398,15 @@ class winGL(QtOpenGL.QGLWidget):
         extraParticlesNum = int(self.newParticlesMean + random() * self.newParticlesVariance)
 
         for i in range(extraParticlesNum):
-            self.waterfallParticles.append(Particle(self.lineStartWF, self.lineEndWF))
+            self.waterfallParticles.append(Particle(lineStartWF, lineEndWF))
 
         for i in range(int(extraParticlesNum * 1.5)):
-            self.solidParticles.append(Particle(self.lineStartRock, self.lineEndRock))
+            self.solidParticles.append(Particle(lineStartRock, lineEndRock))
 
         self.particlesNum += extraParticlesNum
 
         # Обновить атрибуты для всех частиц
-        self.moveParticles()
+        self.changeParticles()
 
 
     def deleteExtraParticles(self):
@@ -405,7 +430,7 @@ class winGL(QtOpenGL.QGLWidget):
         self.allParticles = self.getAllParticles()
 
         self.particlesNum -= deletedParticles
-    
+
 
     def translate(self, vec):
         self.camera.translate(*vec)
@@ -419,6 +444,32 @@ class winGL(QtOpenGL.QGLWidget):
         self.camera.spinX(vec[0])
         self.camera.spinY(vec[1])
         self.camera.spinZ(vec[2])
+
+
+    # Изменение параметров
+    def changeParticlesAmount(self, value):
+        self.newParticlesMean = value
+        print(self.newParticlesMean)
+
+
+    def changeSpeedWF(self, operation):
+        setParticleSpeed(operation)
+
+
+    def changeAngleWF(self, operation):
+        setParticleAngle(operation)
+            
+
+    def changeHeightAliveWF(self, value):
+        for particle in self.allParticles:
+            particle.pos[1] = value
+
+    
+    def changeHeightRock(self, value):
+        
+        for i in range(4):
+            self.solidRock[i][1] = value
+
 
     # Мышка
     def mousePressEvent(self, event):

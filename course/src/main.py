@@ -12,6 +12,9 @@ from PyQt5.QtWidgets import QMessageBox, QColorDialog
 from PyQt5.QtGui import QColor
 from ui_mainwindow import Ui_project
 
+from wingl import setHeightWF, setParticleSize, winGL
+from consts import *
+
 BACKGROUNDSTRING = "background-color: %s"
 
 
@@ -44,8 +47,6 @@ class project(QtWidgets.QMainWindow, Ui_project):
         self.cam_spin_down_btn.clicked.connect(self.spinRightY)
         self.cam_spin_left_btn.clicked.connect(self.spinLeftX)
         self.cam_spin_right_btn.clicked.connect(self.spinRightX)
-        self.cam_spin_forward_btn.clicked.connect(self.spinLeftZ)
-        self.cam_spin_back_btn.clicked.connect(self.spinRightZ)
 
         # Масштабирование
         self.cam_scale_forward_btn.clicked.connect(self.scaleUp)
@@ -53,6 +54,13 @@ class project(QtWidgets.QMainWindow, Ui_project):
 
         # Водопад
         self.wf_run_btn.clicked.connect(self.controllWaterfall)
+        # self.speed_up_wf_btn.clicked.connect(self.changeSpeedUpWF)
+        # self.speed_down_wf_btn.clicked.connect(self.changeSpeedDownWF)
+        self.sliderSpeedWF.valueChanged.connect(self.changeSpeedWF)
+        self.sliderHeightWF.valueChanged.connect(self.changeHeightWF)
+        self.sliderAngleWF.valueChanged.connect(self.changeAngleWF)
+        self.sliderSizeParticle.valueChanged.connect(self.changeParticleSize)
+        self.sliderAmountParticles.valueChanged.connect(self.changeParticlesAmount)
 
         # Таймер
         timer = QtCore.QTimer(self)
@@ -64,6 +72,7 @@ class project(QtWidgets.QMainWindow, Ui_project):
         timerW.setInterval(300)
         timerW.timeout.connect(self.timerUpdateWaterColor)
         timerW.start()
+
 
     def timerActions(self):
         if self.colorWindow:
@@ -78,7 +87,6 @@ class project(QtWidgets.QMainWindow, Ui_project):
         self.winGL.update(self.curColor.getRgbF(), self.translateVec)
 
 
-    
     def timerUpdateWaterColor(self):
         self.winGL.updateWaterColor()
 
@@ -86,6 +94,36 @@ class project(QtWidgets.QMainWindow, Ui_project):
     # Управление водопадом
     def controllWaterfall(self):
         self.isActiveWF = not self.isActiveWF
+
+
+    def changeSpeedWF(self, value):
+        self.winGL.changeSpeedWF(value)
+
+    
+    def changeSpeedUpWF(self):
+        self.winGL.changeSpeedWF(MORE)
+
+
+    def changeSpeedDownWF(self):
+        self.winGL.changeSpeedWF(LESS)
+
+
+    def changeAngleWF(self, value):
+        self.winGL.changeAngleWF(value)
+
+
+    def changeParticleSize(self, value):
+        setParticleSize(value)
+
+
+    def changeParticlesAmount(self, value):
+        self.winGL.changeParticlesAmount(value)
+
+
+    def changeHeightWF(self, value):
+        setHeightWF(value)
+        self.winGL.changeHeightAliveWF(value)
+        self.winGL.changeHeightRock(value)
 
     # Масштабирование
     def scaleUp(self):
@@ -125,12 +163,6 @@ class project(QtWidgets.QMainWindow, Ui_project):
 
     def spinRightY(self):
         self.winGL.spin((-1, 0, 0))
-
-    def spinLeftZ(self):
-        self.winGL.spin((0, 0, 1))
-
-    def spinRightZ(self):
-        self.winGL.spin((0, 0, -1))
 
     def keyPressEvent(self, event):
         if (event.key() == Qt.Key_W):

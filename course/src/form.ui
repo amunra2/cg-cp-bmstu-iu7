@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -33,9 +33,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>30</y>
+       <y>120</y>
        <width>301</width>
-       <height>161</height>
+       <height>261</height>
       </rect>
      </property>
      <property name="frameShape">
@@ -44,16 +44,16 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <widget class="QWidget" name="horizontalLayoutWidget">
+     <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>281</width>
+        <width>271</width>
         <height>41</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
@@ -62,51 +62,184 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="wf_speed_box"/>
+        <widget class="QSlider" name="sliderSpeedWF">
+         <property name="minimum">
+          <number>10</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="singleStep">
+          <number>50</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>98</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="horizontalLayoutWidget_2">
+     <widget class="QWidget" name="verticalLayoutWidget_2">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>60</y>
-        <width>281</width>
-        <height>41</height>
+        <width>271</width>
+        <height>42</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Высота подопада             </string>
+          <string>Высота водопада</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="wf_height_box"/>
+        <widget class="QSlider" name="sliderHeightWF">
+         <property name="minimum">
+          <number>-12</number>
+         </property>
+         <property name="maximum">
+          <number>10</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="horizontalLayoutWidget_3">
+     <widget class="QWidget" name="verticalLayoutWidget_3">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>110</y>
-        <width>281</width>
-        <height>41</height>
+        <width>271</width>
+        <height>42</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Угол наклона                     </string>
+          <string>Угол наклона воды</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="wf_angle_box"/>
+        <widget class="QSlider" name="sliderAngleWF">
+         <property name="minimum">
+          <number>-100</number>
+         </property>
+         <property name="maximum">
+          <number>0</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>-2</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>160</y>
+        <width>271</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Размер частиц</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="sliderSizeParticle">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>15</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>7</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>210</y>
+        <width>271</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Количество частиц</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="sliderAmountParticles">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>400</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+         <property name="pageStep">
+          <number>10</number>
+         </property>
+         <property name="value">
+          <number>50</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -115,7 +248,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>100</y>
        <width>171</width>
        <height>19</height>
       </rect>
@@ -128,7 +261,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>230</y>
+       <y>520</y>
        <width>291</width>
        <height>51</height>
       </rect>
@@ -147,7 +280,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>200</y>
+       <y>490</y>
        <width>181</width>
        <height>19</height>
       </rect>
@@ -273,10 +406,10 @@
      <widget class="QPushButton" name="cam_spin_right_btn">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>120</x>
         <y>70</y>
-        <width>31</width>
-        <height>25</height>
+        <width>41</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -286,10 +419,10 @@
      <widget class="QPushButton" name="cam_spin_left_btn">
       <property name="geometry">
        <rect>
-        <x>60</x>
+        <x>80</x>
         <y>70</y>
-        <width>31</width>
-        <height>25</height>
+        <width>41</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
@@ -300,7 +433,7 @@
       <property name="geometry">
        <rect>
         <x>100</x>
-        <y>40</y>
+        <y>50</y>
         <width>41</width>
         <height>25</height>
        </rect>
@@ -320,32 +453,6 @@
       </property>
       <property name="text">
        <string>↓</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="cam_spin_forward_btn">
-      <property name="geometry">
-       <rect>
-        <x>90</x>
-        <y>60</y>
-        <width>31</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>↺</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="cam_spin_spin_back_btn">
-      <property name="geometry">
-       <rect>
-        <x>120</x>
-        <y>60</y>
-        <width>31</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>↻</string>
       </property>
      </widget>
     </widget>
@@ -390,7 +497,7 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QOpenGLWidget" name="winGL">
+  <widget class="winGL" name="winGL">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -401,6 +508,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>winGL</class>
+   <extends>QOpenGLWidget</extends>
+   <header>wingl.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -2,15 +2,33 @@ import numpy as np
 from random import random, randint
 import glm
 
-from scipy import randn
+from consts import *
 
 from copy import deepcopy
 
+acceleration = 0.00098
+initialDirection = [0.0, -0.2, -1.0]
 
+def setParticleSpeed(value):
+    global acceleration
+
+    acceleration = (value / 100000)
+
+    print(acceleration)
+
+    # if (operation == MORE):
+    #     acceleration *= VALUE_CHANGE
+    # elif (operation == LESS):
+    #     acceleration /= VALUE_CHANGE
+
+
+def setParticleAngle(value):
+    global initialDirection
+
+    initialDirection[1] = value / 10   
 
 
 class Particle:
-    initialDirection = [0.0, -0.2, -1.0]
     directionVariance = [0.2, -0.3, 0.1]
 
     diameterMean = 0.5
@@ -20,23 +38,15 @@ class Particle:
     speedVariance = 0.000001
 
     waterColour = [0, 153, 204, 1]
-    opacityMean = 0.7
-    opacityVariance = 0.1
-
     accelerationGravity = 0.00098
     gravityDirection = [0.0, -0.1, 0.0]
 
     windScale = 1000.0
     windDirection = [-1.0, 0.0, 0.0]
 
-    # lineStart = [-10.0, 0, 0.0]
-    # lineEnd = [10.0, 0, 0.0]
-
-    currentTime = 0
-    particlesRemoved = 0
-
     num = 0
     check = True
+
 
     def __init__(self, lineStart, lineEnd):
 
@@ -49,10 +59,8 @@ class Particle:
         self.age = 0
         self.maxAge = randint(100, 700)
         self.color = self.initColor()
-        self.opacity = self.opacityMean + random() * self.opacityVariance
 
-        self.diameter = self.diameterMean + random() * self.diameterVariance
-        self.acceleration = self.accelerationGravity
+        self.acceleration = acceleration
 
 
     def addDirections(self, dirA, dirB): # может быть надо будет поменять на обе dirA
@@ -60,14 +68,16 @@ class Particle:
                 dirA[1] + dirA[1],
                 dirA[2] + dirA[2]]
     
+
     def initialParticleDirection(self):
-        direction = deepcopy(self.initialDirection)
+        direction = deepcopy(initialDirection)
 
         direction[0] += (random() * self.directionVariance[0])
         direction[1] += (random() * self.directionVariance[1])
         direction[2] += (random() * self.directionVariance[2])
 
         return direction
+
 
     def initialParticlePosition(self, lineStart, lineEnd):
         vector = [lineEnd[0] - lineStart[0],
