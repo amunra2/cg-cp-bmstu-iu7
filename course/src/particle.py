@@ -173,8 +173,11 @@ class Particle:
         self.age += 1
 
         # Если время жизни частицы близко к максимальному, то
-        # токрасить частицу в белый
-        if (self.age + 150 > self.maxAge):
+        # красить частицу в белый и замедлить ее, поскольку она превращается
+        # в пар и отлетает от водопада (брызги)
+        if (self.age + 100 > self.maxAge):
+            self.speed *= 0.9
+            self.direction[2] *= 1.014
             self.color = glm.vec4(1, 1, 1, 1)
 
         return self
