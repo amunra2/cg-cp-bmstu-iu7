@@ -20,7 +20,6 @@ from object import Object
 from camera import Camera
 
 from particle import Particle, setParticleAngle, setParticleSpeed
-from consts import *
 
 
 # Изменяемые параметры
@@ -32,13 +31,20 @@ lineEndWF   = [ 10, 0, 0]
 lineStartRock = [-10, 0, 5]
 lineEndRock   = [ 10, 0, 5]
 
-particalSize = 7
+particalSize = 5
 
 
 def setParticleSize(value):
     global particalSize
 
     particalSize = value
+
+    if (particalSize < 0):
+        particalSize = 1
+
+
+def getParticleSize():
+    return particalSize
 
 
 def setHeightWF(value):
@@ -228,8 +234,9 @@ class winGL(QtOpenGL.QGLWidget):
     def resizeGL(self, width, height):
         gl.glViewport(0, 0, width, height)
         self.camera.changePerspective(ratio = width / height)
-        self.camera.setPos([-20, 5, 0])
-        self.camera.spinY(90)
+        self.camera.setPos([-37, 15, -35])
+        self.camera.spinY(125)
+        self.camera.spinX(-30)
 
 
     def paintSolidObject(self, vrtxs, indices, color):
@@ -478,7 +485,7 @@ class winGL(QtOpenGL.QGLWidget):
         self.lastPos = QPoint(camPosition.x() + self.width() // 2,
                               camPosition.y() + self.height() // 2)
 
-        # print(self.lastPos)
+        print(self.camera.getPos())
 
         self.cursor.setPos(self.lastPos)
         self.cursor.setShape(Qt.BlankCursor)

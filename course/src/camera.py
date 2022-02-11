@@ -56,6 +56,9 @@ class Camera(Object):
     def setPos(self, pos):
         self.pos = glm.vec3(*pos)
 
+    def getPos(self):
+        return self.pos
+
     def translate(self, x, y, z):
         self.pos += glm.vec3(x, y, z)
 

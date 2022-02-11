@@ -13,7 +13,6 @@ from PyQt5.QtGui import QColor
 from ui_mainwindow import Ui_project
 
 from wingl import setHeightWF, setParticleSize, winGL
-from consts import *
 
 BACKGROUNDSTRING = "background-color: %s"
 
@@ -98,14 +97,6 @@ class project(QtWidgets.QMainWindow, Ui_project):
 
     def changeSpeedWF(self, value):
         self.winGL.changeSpeedWF(value)
-
-    
-    def changeSpeedUpWF(self):
-        self.winGL.changeSpeedWF(MORE)
-
-
-    def changeSpeedDownWF(self):
-        self.winGL.changeSpeedWF(LESS)
 
 
     def changeAngleWF(self, value):
