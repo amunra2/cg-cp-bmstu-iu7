@@ -1,0 +1,87 @@
+\chapter{Технологическая часть}
+
+В данном разделе будут рассмотрены средства разработки программного обеспечения, детали реализации, а также диаграмма классов.
+
+
+\section{Средства реализации}
+
+При написании программного продукта был выбран язык \textit{Python} \cite{python-lang}. Это обусловлено следующими факторами:
+
+\begin{itemize}
+    \item объектно-ориентированный язык, что позволяет использовать структуру классов;
+    \item имеются необходимые библиотеки для реализации поставленной задачи;
+    \item существует много учебной литературы.
+\end{itemize}
+
+В качестве разработки интерфейса был выбран \textit{Qt Design} \cite{qt-designer}. Он позволяет создать качественный интерфейс, так как имеет встроенный редактор выводимого окна.
+
+В качестве среды разработки был выбран \textit{Visual Studio Code} \cite{vs-code}. Данное приложение имеет большое количество плагинов для работы с кодом.
+
+
+\section{Описание структуры программы}
+
+На рисунке \ref{img:classes_scheme.png} показана структура реализуемых классов.
+
+\imgHeight{150mm}{classes_scheme.png}{Схема классов программы}
+
+\clearpage
+
+Описание реализуемых классов:
+
+\begin{itemize}
+    \item \textbf{Camera} -- класс для работы с камерой. Хранит позицию камеры, угол ее наклона, скорость перемещения для динамической смены положения камеры;
+    \item \textbf{Shader} -- класс, который подключает шейдеры к приложению. Хранит данные шейдеров для передачи цвета объектов;
+    \item \textbf{Object} -- класс, который владеет информацией о всех объектах сцены;
+    \item \textbf{winGL} -- класс для отрисовки объектов сцены. Хранит массив частиц для водопада, хранит массив цветов для водопада, а также данные для отрисовки статичных объектов;
+    \item \textbf{Particle} -- класс, который описывает одну частицу водопада. Хранит ее положение, направление движения, цвет, скорость, время жизни и максимальное время жизни. 
+\end{itemize}
+
+
+\section{Реализация алгоритмов}
+
+В листинге \ref{lst:particle_move} представлен алгоритм перемещения частицы водопада за один кадр.
+
+\begin{center}
+    \captionsetup{justification=raggedright,singlelinecheck=off}
+    \begin{lstlisting}[label=lst:particle_move,caption=Алгоритм перемещения частицы водопада за один кадр]
+def moveWaterfallParticle(self):
+    if (self.pos[1] <= WATER_LINE):
+        self.speed = BOUNCE_COEF * self.speed
+        self.direction[2] *= -1
+        self.vaporized = True
+
+    oldSpeed = self.speed
+    oldDirection = deepcopy(self.direction)
+
+    self.direction[0] += self.gravityDirection[0]
+    self.direction[1] += self.gravityDirection[1]
+    self.direction[2] += self.gravityDirection[2]
+
+    if (self.vaporized):
+        self.speed -= self.acceleration
+
+        self.pos[0] = self.pos[0] + oldSpeed * oldDirection[0] + (self.speed * self.direction[0]) / 2 
+        self.pos[1] = self.pos[1] - (oldSpeed * oldDirection[1] + (self.speed * self.direction[1]) / 2)
+        self.pos[2] = self.pos[2] - (oldSpeed * oldDirection[2] + (self.speed * self.direction[2]) / 2)
+    else:
+        self.speed += self.acceleration
+
+        self.pos[0] = self.pos[0] + oldSpeed * oldDirection[0] + (self.speed * self.direction[0]) / 2
+        self.pos[1] = self.pos[1] + oldSpeed * oldDirection[1] + (self.speed * self.direction[1]) / 2
+        self.pos[2] = self.pos[2] + oldSpeed * oldDirection[2] + (self.speed * self.direction[2]) / 2
+
+    self.age += 1
+
+    if (self.age + 100 > self.maxAge):
+        self.speed *= 0.9
+        self.direction[2] *= 1.014
+        self.color = glm.vec4(1, 1, 1, 1)
+
+    return self
+\end{lstlisting}
+\end{center}
+
+
+\section*{Вывод}
+
+В данном разделе были рассмотрены средства, с помощью которых было реализовано ПО, описана структура классов проекта, а также представлен листинг алгоритма перемещения частицы водопада за кадр.
