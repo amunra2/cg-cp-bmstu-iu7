@@ -1,5 +1,3 @@
-from functools import partial
-from operator import imod
 from PyQt5 import QtGui, QtOpenGL
 from PyQt5.QtGui import QMatrix4x4, QCursor, QColor
 from PyQt5.QtCore import Qt, QPoint
@@ -13,6 +11,8 @@ import glfw
 import numpy as np
 from random import random, shuffle, choice
 from copy import deepcopy
+
+from time import time
 
 from shader import Shader
 
@@ -32,6 +32,7 @@ lineStartRock = [-10, 0, 5]
 lineEndRock   = [ 10, 0, 5]
 
 particalSize = 5
+
 
 
 def setParticleSize(value):
@@ -57,6 +58,10 @@ def setHeightWF(value):
 
 
 class winGL(QtOpenGL.QGLWidget):
+    frames = 0
+    time_start = time()
+    fps = 0
+
     newParticlesMean = 50.0
     newParticlesVariance = 5.0
 
@@ -240,26 +245,26 @@ class winGL(QtOpenGL.QGLWidget):
 
 
     def paintSolidObject(self, vrtxs, indices, color):
-        cubeVBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, cubeVBO)
+        objectVBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, objectVBO)
         gl.glBufferData(gl.GL_ARRAY_BUFFER, vrtxs, gl.GL_STATIC_DRAW)
 
-        cubeEBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, cubeEBO)
+        objectEBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, objectEBO)
         gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, indices, gl.GL_STATIC_DRAW)
         
-        cubeColorVBO = gl.glGenBuffers(1)
-        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, cubeColorVBO)
+        objectColorVBO = gl.glGenBuffers(1)
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, objectColorVBO)
         gl.glBufferData(gl.GL_ELEMENT_ARRAY_BUFFER, color, gl.GL_STATIC_DRAW)
 
         gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, False, 0, None)
         gl.glEnableVertexAttribArray(0)
 
         gl.glEnableVertexAttribArray(1)
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, cubeColorVBO)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, objectColorVBO)
         gl.glVertexAttribPointer(1, 4, gl.GL_FLOAT, True, 0, None)
 
-        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, cubeEBO)
+        gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, objectEBO)
 
         gl.glDrawElements(gl.GL_TRIANGLES, 1000, gl.GL_UNSIGNED_INT, None)
 
@@ -294,7 +299,7 @@ class winGL(QtOpenGL.QGLWidget):
 
 
     def paintGL(self):
-        # print("Paint START")
+        # # print("Paint START")
 
         # Очищаем экран
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -323,6 +328,24 @@ class winGL(QtOpenGL.QGLWidget):
 
         # Водопад
         self.paintDynamicObject(self.particlesPositions, self.particlesColors)
+        
+        # FPS счетчик
+
+        self.frames = self.frames + 1
+        time_end = time()
+
+        if (time_end - self.time_start > 0):
+            self.fps = self.frames // (time_end - self.time_start)
+            self.frames = 0
+            self.time_start = time_end
+
+
+    def getFPS(self):
+        return self.fps
+
+    
+    def getAmountParticles(self):
+        return len(self.allParticles)
 
 
     def getAllParticles(self):
@@ -423,14 +446,12 @@ class winGL(QtOpenGL.QGLWidget):
         for particle in self.waterfallParticles:
             if (particle.age > particle.maxAge):
                 self.waterfallParticles.pop(0)
-                # self.particles.append(Particle())
                 deletedParticles += 1
 
         for particle in self.solidParticles:
             if (particle.pos[2] < 0):
                 self.waterfallReady = True
                 self.solidParticles.pop(0)
-                # self.particles.append(Particle())
                 deletedParticles += 1
 
         

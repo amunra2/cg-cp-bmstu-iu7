@@ -50,7 +50,7 @@
         <x>10</x>
         <y>10</y>
         <width>271</width>
-        <height>41</height>
+        <height>42</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -225,10 +225,10 @@
           <number>0</number>
          </property>
          <property name="maximum">
-          <number>400</number>
+          <number>70</number>
          </property>
          <property name="singleStep">
-          <number>10</number>
+          <number>5</number>
          </property>
          <property name="pageStep">
           <number>10</number>

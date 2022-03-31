@@ -6,7 +6,7 @@ from copy import deepcopy
 
 
 WATER_LINE = -14.7
-BOUNCE_COEF = -0.1
+BOUNCE_COEF = 0.15
 
 
 speedMean = 0.00001
@@ -20,7 +20,6 @@ def setParticleSpeed(value):
 
     speedMean = (value / 10000)
     speedVariance = (value / 100000)
-    
 
 
 def setParticleAngle(value):
@@ -41,6 +40,8 @@ class Particle:
 
     num = 0
     check = True
+
+    vaporized = False
 
 
     def __init__(self, lineStart, lineEnd):
@@ -150,24 +151,32 @@ class Particle:
         if (self.pos[1] <= WATER_LINE):
             self.speed = BOUNCE_COEF * self.speed
             self.direction[2] *= -1
+            self.vaporized = True
 
-            # Частица, достигшая водного полотна, превращается в водный
-            # пар, который по задумке белого цвета
-            self.color = glm.vec4(1, 1, 1, 1)
-
-        # Старая скорость частицы
-        # oldSpeed = self.speed
-        # oldDirection = deepcopy(self.direction)
+        oldSpeed = self.speed
+        oldDirection = deepcopy(self.direction)
 
         self.direction[0] += self.gravityDirection[0]
         self.direction[1] += self.gravityDirection[1]
         self.direction[2] += self.gravityDirection[2]
 
-        self.speed += self.acceleration
+        if (self.vaporized):
 
-        self.pos[0] += (self.speed * self.direction[0]) # (+ oldSpeed * oldDirection[0])? Нужно ли это и зачем?
-        self.pos[1] += (self.speed * self.direction[1])
-        self.pos[2] += (self.speed * self.direction[2])
+            # Частица, достигшая водного полотна, превращается в водный
+            # пар, который по задумке белого цвета
+            self.color = glm.vec4(1, 1, 1, 1)
+
+            self.speed -= self.acceleration
+
+            self.pos[0] = self.pos[0] + oldSpeed * oldDirection[0] + (self.speed * self.direction[0]) / 2 # (+ oldSpeed * oldDirection[0])? Нужно ли это и зачем?
+            self.pos[1] = self.pos[1] - (oldSpeed * oldDirection[1] + (self.speed * self.direction[1]) / 2)
+            self.pos[2] = self.pos[2] - (oldSpeed * oldDirection[2] + (self.speed * self.direction[2]) / 2)
+        else:
+            self.speed += self.acceleration
+
+            self.pos[0] = self.pos[0] + oldSpeed * oldDirection[0] + (self.speed * self.direction[0]) / 2 # (+ oldSpeed * oldDirection[0])? Нужно ли это и зачем?
+            self.pos[1] = self.pos[1] + oldSpeed * oldDirection[1] + (self.speed * self.direction[1]) / 2
+            self.pos[2] = self.pos[2] + oldSpeed * oldDirection[2] + (self.speed * self.direction[2]) / 2
 
         # Время жизни частицы + 1
         self.age += 1
@@ -186,22 +195,21 @@ class Particle:
     # (не изменяется координата по Y, возможно стоит объединить в одну функцию)
     def moveSolidParticle(self):
 
+        oldSpeed = self.speed
+        oldDirection = deepcopy(self.direction)
+
         self.direction[0] += self.gravityDirection[0]
         self.direction[1] += self.gravityDirection[1]
         self.direction[2] += self.gravityDirection[2]
 
         self.speed += self.acceleration
 
-        self.pos[0] += (self.speed * self.direction[0])
-        # self.pos[1] += (oldSpeed * oldDirection[1] + self.speed * self.direction[1])
-        self.pos[2] += (self.speed * self.direction[2])
+        self.pos[0] = self.pos[0] + oldSpeed * oldDirection[0] + (self.speed * self.direction[0]) / 2 # (+ oldSpeed * oldDirection[0])? Нужно ли это и зачем?
+        self.pos[2] = self.pos[2] + oldSpeed * oldDirection[2] + (self.speed * self.direction[2]) / 2
 
         self.age += 1
 
         if (self.age + 150 > self.maxAge):
             self.color = glm.vec4(1, 1, 1, 1)
 
-        return self 
-
-        
-
+        return self

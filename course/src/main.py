@@ -63,7 +63,7 @@ class project(QtWidgets.QMainWindow, Ui_project):
 
         # Таймер
         timer = QtCore.QTimer(self)
-        timer.setInterval(50)
+        timer.setInterval(1)
         timer.timeout.connect(self.timerActions)
         timer.start()
 
@@ -84,6 +84,7 @@ class project(QtWidgets.QMainWindow, Ui_project):
             self.winGL.makeWaterfall()
         
         self.winGL.update(self.curColor.getRgbF(), self.translateVec)
+        self.setWindowTitle("FPS: %5s (частиц: %5s)" %(self.winGL.getFPS(), self.winGL.getAmountParticles()))
 
 
     def timerUpdateWaterColor(self):
