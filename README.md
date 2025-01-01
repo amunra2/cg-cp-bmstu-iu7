@@ -6,9 +6,16 @@
 
 * **Тема**: Разработка программного обеспечения для визуализации геометрической модели водопада
 * **Семестр**: 5
-* **РПЗ**: [ссылка](https://github.com/amunra2/cg-cp-bmstu-iu7/blob/main/course/docs/pdf/cgcp_rpz_cvetkov.pdf)
-* **Презентация**: [ссылка](https://github.com/amunra2/cg-cp-bmstu-iu7/blob/main/course/docs/pdf/cgcp_presentation_cvetkov.pdf)
-* **Код**: [ссылка](https://github.com/amunra2/cg-cp-bmstu-iu7/tree/main/course/src)
+* **Язык**: Python
+* **РПЗ**: [ссылка](./course/docs/pdf/cgcp_rpz_cvetkov.pdf)
+* **Презентация**: [ссылка](./course/docs/pdf/cgcp_presentation_cvetkov.pdf)
+* **Код**: [ссылка](./course/src)
+
+
+## Пример работы
+
+![](./course/docs/img/example1.png)
+
 
 ## Примечание
 
